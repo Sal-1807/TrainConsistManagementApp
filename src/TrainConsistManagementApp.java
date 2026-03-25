@@ -13,8 +13,6 @@ public class TrainConsistManagementApp {
 
         // Display initial bogie count
         System.out.println("Train consist initialized.");
-        System.out.println("Initial number of bogies: " + trainConsist.size());
-
         // Program continues (future UCs will add functionality here)
     }
 }
