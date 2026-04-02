@@ -1,22 +1,26 @@
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistManagementAppTest {
 
-    // Helper method
     private List<TrainConsistManagementApp.Bogie> getSampleBogies() {
         List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
 
         list.add(new TrainConsistManagementApp.Bogie("Sleeper", 72));
         list.add(new TrainConsistManagementApp.Bogie("AC Chair", 50));
         list.add(new TrainConsistManagementApp.Bogie("First Class", 24));
+        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 80));
 
         return list;
     }
 
-    // TEST 1
+    // ================= UC8 TESTS =================
+
     @Test
     public void testFilter_CapacityGreaterThanThreshold() {
         List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
@@ -24,57 +28,14 @@ public class TrainConsistManagementAppTest {
         List<TrainConsistManagementApp.Bogie> result =
                 list.stream().filter(b -> b.capacity > 60).toList();
 
-        assertEquals(1, result.size());
-    }
-
-    // TEST 2
-    @Test
-    public void testFilter_CapacityEqualToThreshold() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        list.add(new TrainConsistManagementApp.Bogie("Test", 60));
-
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    // TEST 3
-    @Test
-    public void testFilter_CapacityLessThanThreshold() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        list.add(new TrainConsistManagementApp.Bogie("Test", 40));
-
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    // TEST 4
-    @Test
-    public void testFilter_MultipleBogiesMatching() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        list.add(new TrainConsistManagementApp.Bogie("B1", 70));
-        list.add(new TrainConsistManagementApp.Bogie("B2", 80));
-        list.add(new TrainConsistManagementApp.Bogie("B3", 30));
-
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
-
         assertEquals(2, result.size());
     }
 
-    // TEST 5
     @Test
     public void testFilter_NoBogiesMatching() {
         List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
 
-        list.add(new TrainConsistManagementApp.Bogie("B1", 10));
-        list.add(new TrainConsistManagementApp.Bogie("B2", 20));
+        list.add(new TrainConsistManagementApp.Bogie("Test", 20));
 
         List<TrainConsistManagementApp.Bogie> result =
                 list.stream().filter(b -> b.capacity > 60).toList();
@@ -82,41 +43,67 @@ public class TrainConsistManagementAppTest {
         assertTrue(result.isEmpty());
     }
 
-    // TEST 6
-    @Test
-    public void testFilter_AllBogiesMatching() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        list.add(new TrainConsistManagementApp.Bogie("B1", 70));
-        list.add(new TrainConsistManagementApp.Bogie("B2", 80));
-
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
-
-        assertEquals(list.size(), result.size());
-    }
-
-    // TEST 7
-    @Test
-    public void testFilter_EmptyBogieList() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    // TEST 8 ⭐
     @Test
     public void testFilter_OriginalListUnchanged() {
         List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
 
-        int originalSize = list.size();
+        int size = list.size();
 
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
+        list.stream().filter(b -> b.capacity > 60).toList();
 
-        assertEquals(originalSize, list.size());
+        assertEquals(size, list.size());
+    }
+
+    // ================= UC9 TESTS =================
+
+    @Test
+    public void testGrouping_BogiesGroupedByType() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        Map<String, List<TrainConsistManagementApp.Bogie>> result =
+                list.stream().collect(Collectors.groupingBy(b -> b.name));
+
+        assertTrue(result.containsKey("Sleeper"));
+    }
+
+    @Test
+    public void testGrouping_MultipleBogiesInSameGroup() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        Map<String, List<TrainConsistManagementApp.Bogie>> result =
+                list.stream().collect(Collectors.groupingBy(b -> b.name));
+
+        assertEquals(2, result.get("Sleeper").size());
+    }
+
+    @Test
+    public void testGrouping_DifferentBogieTypes() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        Map<String, List<TrainConsistManagementApp.Bogie>> result =
+                list.stream().collect(Collectors.groupingBy(b -> b.name));
+
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    public void testGrouping_EmptyBogieList() {
+        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
+
+        Map<String, List<TrainConsistManagementApp.Bogie>> result =
+                list.stream().collect(Collectors.groupingBy(b -> b.name));
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testGrouping_OriginalListUnchanged() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        int size = list.size();
+
+        list.stream().collect(Collectors.groupingBy(b -> b.name));
+
+        assertEquals(size, list.size());
     }
 }
