@@ -1,22 +1,21 @@
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TrainConsistManagementApp {
 
-    // Bogie class (custom object)
+    // Bogie class
     static class Bogie {
         String name;
         int capacity;
 
-        // Constructor
         Bogie(String name, int capacity) {
             this.name = name;
             this.capacity = capacity;
         }
 
-        // Display format
         @Override
         public String toString() {
             return name + " (Capacity: " + capacity + ")";
@@ -27,15 +26,15 @@ public class TrainConsistManagementApp {
 
         System.out.println("=== Train Consist Management App ===");
 
-        // Create list of bogies
+        // Create list
         List<Bogie> bogies = new ArrayList<>();
 
-        // Add bogie objects
         bogies.add(new Bogie("Sleeper", 72));
         bogies.add(new Bogie("AC Chair", 50));
         bogies.add(new Bogie("First Class", 24));
+        bogies.add(new Bogie("Sleeper", 80)); // extra for grouping
 
-        // UC7: Sort bogies by capacity (ascending)
+        // ================= UC7 =================
         bogies.sort(Comparator.comparingInt(b -> b.capacity));
 
         System.out.println("\nBogies sorted by capacity:");
@@ -43,18 +42,23 @@ public class TrainConsistManagementApp {
             System.out.println(b);
         }
 
-        // ================== UC8 START ==================
-
-        // Convert list to stream and filter
+        // ================= UC8 =================
         List<Bogie> filteredBogies = bogies.stream()
                 .filter(b -> b.capacity > 60)
                 .collect(Collectors.toList());
 
-        // Display filtered bogies
         System.out.println("\nFiltered Bogies (Capacity > 60):");
         filteredBogies.forEach(System.out::println);
 
-        // ================== UC8 END ==================
+        // ================= UC9 =================
+        Map<String, List<Bogie>> groupedBogies = bogies.stream()
+                .collect(Collectors.groupingBy(b -> b.name));
+
+        System.out.println("\nGrouped Bogies by Type:");
+        groupedBogies.forEach((type, list) -> {
+            System.out.println(type + ":");
+            list.forEach(b -> System.out.println("  " + b));
+        });
 
         // Program continues
     }
