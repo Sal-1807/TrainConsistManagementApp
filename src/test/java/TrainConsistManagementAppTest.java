@@ -1,83 +1,88 @@
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistManagementAppTest {
 
-    // Helper
-    private List<TrainConsistManagementApp.GoodsBogie> getValidGoods() {
-        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+    private List<TrainConsistManagementApp.Bogie> getBogies() {
+        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
 
-        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Petroleum"));
-        list.add(new TrainConsistManagementApp.GoodsBogie("Open", "Coal"));
+        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 72));
+        list.add(new TrainConsistManagementApp.Bogie("AC", 50));
+        list.add(new TrainConsistManagementApp.Bogie("First", 24));
+        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 80));
 
         return list;
     }
 
-    // ================= UC12 TESTS =================
+    // ================= UC13 TESTS =================
 
     @Test
-    public void testSafety_AllBogiesValid() {
-        List<TrainConsistManagementApp.GoodsBogie> list = getValidGoods();
+    public void testLoopFilteringLogic() {
+        List<TrainConsistManagementApp.Bogie> list = getBogies();
 
-        boolean result = list.stream()
-                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
-                        g.cargo.equalsIgnoreCase("Petroleum"));
+        List<TrainConsistManagementApp.Bogie> result = new ArrayList<>();
 
-        assertTrue(result);
+        for (TrainConsistManagementApp.Bogie b : list) {
+            if (b.capacity > 60) {
+                result.add(b);
+            }
+        }
+
+        assertEquals(2, result.size());
     }
 
     @Test
-    public void testSafety_CylindricalWithInvalidCargo() {
-        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+    public void testStreamFilteringLogic() {
+        List<TrainConsistManagementApp.Bogie> list = getBogies();
 
-        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Coal"));
+        List<TrainConsistManagementApp.Bogie> result =
+                list.stream().filter(b -> b.capacity > 60).toList();
 
-        boolean result = list.stream()
-                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
-                        g.cargo.equalsIgnoreCase("Petroleum"));
-
-        assertFalse(result);
+        assertEquals(2, result.size());
     }
 
     @Test
-    public void testSafety_NonCylindricalBogiesAllowed() {
-        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+    public void testLoopAndStreamResultsMatch() {
+        List<TrainConsistManagementApp.Bogie> list = getBogies();
 
-        list.add(new TrainConsistManagementApp.GoodsBogie("Open", "Coal"));
-        list.add(new TrainConsistManagementApp.GoodsBogie("Box", "Grain"));
+        List<TrainConsistManagementApp.Bogie> loopResult = new ArrayList<>();
+        for (TrainConsistManagementApp.Bogie b : list) {
+            if (b.capacity > 60) {
+                loopResult.add(b);
+            }
+        }
 
-        boolean result = list.stream()
-                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
-                        g.cargo.equalsIgnoreCase("Petroleum"));
+        List<TrainConsistManagementApp.Bogie> streamResult =
+                list.stream().filter(b -> b.capacity > 60).toList();
 
-        assertTrue(result);
+        assertEquals(loopResult.size(), streamResult.size());
     }
 
     @Test
-    public void testSafety_MixedBogiesWithViolation() {
-        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+    public void testExecutionTimeMeasurement() {
+        long start = System.nanoTime();
+        long end = System.nanoTime();
 
-        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Petroleum"));
-        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Coal"));
+        long elapsed = end - start;
 
-        boolean result = list.stream()
-                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
-                        g.cargo.equalsIgnoreCase("Petroleum"));
-
-        assertFalse(result);
+        assertTrue(elapsed >= 0);
     }
 
     @Test
-    public void testSafety_EmptyBogieList() {
-        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+    public void testLargeDatasetProcessing() {
+        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
 
-        boolean result = list.stream()
-                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
-                        g.cargo.equalsIgnoreCase("Petroleum"));
+        for (int i = 0; i < 10000; i++) {
+            list.add(new TrainConsistManagementApp.Bogie("Test", i % 100));
+        }
 
-        assertTrue(result);
+        List<TrainConsistManagementApp.Bogie> result =
+                list.stream().filter(b -> b.capacity > 60).toList();
+
+        assertNotNull(result);
     }
 }
