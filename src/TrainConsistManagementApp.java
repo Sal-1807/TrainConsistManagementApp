@@ -32,7 +32,7 @@ public class TrainConsistManagementApp {
         bogies.add(new Bogie("Sleeper", 72));
         bogies.add(new Bogie("AC Chair", 50));
         bogies.add(new Bogie("First Class", 24));
-        bogies.add(new Bogie("Sleeper", 80)); // extra for grouping
+        bogies.add(new Bogie("Sleeper", 80));
 
         // ================= UC7 =================
         bogies.sort(Comparator.comparingInt(b -> b.capacity));
@@ -59,6 +59,13 @@ public class TrainConsistManagementApp {
             System.out.println(type + ":");
             list.forEach(b -> System.out.println("  " + b));
         });
+
+        // ================= UC10 =================
+        int totalCapacity = bogies.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+
+        System.out.println("\nTotal Seating Capacity: " + totalCapacity);
 
         // Program continues
     }
