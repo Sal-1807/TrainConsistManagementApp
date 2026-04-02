@@ -19,90 +19,85 @@ public class TrainConsistManagementAppTest {
         return list;
     }
 
-    // ================= UC8 TESTS =================
+    // ================= UC10 TESTS =================
 
     @Test
-    public void testFilter_CapacityGreaterThanThreshold() {
+    public void testReduce_TotalSeatCalculation() {
         List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
 
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
+        int total = list.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
 
-        assertEquals(2, result.size());
+        assertEquals(226, total);
     }
 
     @Test
-    public void testFilter_NoBogiesMatching() {
+    public void testReduce_MultipleBogiesAggregation() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        int total = list.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+
+        assertTrue(total > 0);
+    }
+
+    @Test
+    public void testReduce_SingleBogieCapacity() {
+        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
+        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 100));
+
+        int total = list.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+
+        assertEquals(100, total);
+    }
+
+    @Test
+    public void testReduce_EmptyBogieList() {
         List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
 
-        list.add(new TrainConsistManagementApp.Bogie("Test", 20));
+        int total = list.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
 
-        List<TrainConsistManagementApp.Bogie> result =
-                list.stream().filter(b -> b.capacity > 60).toList();
-
-        assertTrue(result.isEmpty());
+        assertEquals(0, total);
     }
 
     @Test
-    public void testFilter_OriginalListUnchanged() {
+    public void testReduce_CorrectCapacityExtraction() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        List<Integer> capacities = list.stream()
+                .map(b -> b.capacity)
+                .toList();
+
+        assertTrue(capacities.contains(72));
+        assertTrue(capacities.contains(50));
+    }
+
+    @Test
+    public void testReduce_AllBogiesIncluded() {
+        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+
+        int total = list.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+
+        assertEquals(226, total);
+    }
+
+    @Test
+    public void testReduce_OriginalListUnchanged() {
         List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
 
         int size = list.size();
 
-        list.stream().filter(b -> b.capacity > 60).toList();
-
-        assertEquals(size, list.size());
-    }
-
-    // ================= UC9 TESTS =================
-
-    @Test
-    public void testGrouping_BogiesGroupedByType() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        Map<String, List<TrainConsistManagementApp.Bogie>> result =
-                list.stream().collect(Collectors.groupingBy(b -> b.name));
-
-        assertTrue(result.containsKey("Sleeper"));
-    }
-
-    @Test
-    public void testGrouping_MultipleBogiesInSameGroup() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        Map<String, List<TrainConsistManagementApp.Bogie>> result =
-                list.stream().collect(Collectors.groupingBy(b -> b.name));
-
-        assertEquals(2, result.get("Sleeper").size());
-    }
-
-    @Test
-    public void testGrouping_DifferentBogieTypes() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        Map<String, List<TrainConsistManagementApp.Bogie>> result =
-                list.stream().collect(Collectors.groupingBy(b -> b.name));
-
-        assertEquals(3, result.size());
-    }
-
-    @Test
-    public void testGrouping_EmptyBogieList() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        Map<String, List<TrainConsistManagementApp.Bogie>> result =
-                list.stream().collect(Collectors.groupingBy(b -> b.name));
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testGrouping_OriginalListUnchanged() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        int size = list.size();
-
-        list.stream().collect(Collectors.groupingBy(b -> b.name));
+        list.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
 
         assertEquals(size, list.size());
     }
