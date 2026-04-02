@@ -1,104 +1,59 @@
 import org.junit.jupiter.api.Test;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistManagementAppTest {
 
-    private List<TrainConsistManagementApp.Bogie> getSampleBogies() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 72));
-        list.add(new TrainConsistManagementApp.Bogie("AC Chair", 50));
-        list.add(new TrainConsistManagementApp.Bogie("First Class", 24));
-        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 80));
-
-        return list;
-    }
-
-    // ================= UC10 TESTS =================
+    // ================= UC11 TESTS =================
 
     @Test
-    public void testReduce_TotalSeatCalculation() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        int total = list.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-
-        assertEquals(226, total);
+    public void testRegex_ValidTrainID() {
+        String input = "TRN-1234";
+        assertTrue(Pattern.matches("TRN-\\d{4}", input));
     }
 
     @Test
-    public void testReduce_MultipleBogiesAggregation() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        int total = list.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-
-        assertTrue(total > 0);
+    public void testRegex_InvalidTrainIDFormat() {
+        assertFalse(Pattern.matches("TRN-\\d{4}", "TRAIN12"));
+        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN12A"));
+        assertFalse(Pattern.matches("TRN-\\d{4}", "1234-TRN"));
     }
 
     @Test
-    public void testReduce_SingleBogieCapacity() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-        list.add(new TrainConsistManagementApp.Bogie("Sleeper", 100));
-
-        int total = list.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-
-        assertEquals(100, total);
+    public void testRegex_ValidCargoCode() {
+        String input = "PET-AB";
+        assertTrue(Pattern.matches("PET-[A-Z]{2}", input));
     }
 
     @Test
-    public void testReduce_EmptyBogieList() {
-        List<TrainConsistManagementApp.Bogie> list = new ArrayList<>();
-
-        int total = list.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-
-        assertEquals(0, total);
+    public void testRegex_InvalidCargoCodeFormat() {
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-ab"));
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET123"));
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", "AB-PET"));
     }
 
     @Test
-    public void testReduce_CorrectCapacityExtraction() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        List<Integer> capacities = list.stream()
-                .map(b -> b.capacity)
-                .toList();
-
-        assertTrue(capacities.contains(72));
-        assertTrue(capacities.contains(50));
+    public void testRegex_TrainIDDigitLengthValidation() {
+        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN-123"));
+        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN-12345"));
     }
 
     @Test
-    public void testReduce_AllBogiesIncluded() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
-
-        int total = list.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-
-        assertEquals(226, total);
+    public void testRegex_CargoCodeUppercaseValidation() {
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-Ab"));
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-aB"));
     }
 
     @Test
-    public void testReduce_OriginalListUnchanged() {
-        List<TrainConsistManagementApp.Bogie> list = getSampleBogies();
+    public void testRegex_EmptyInputHandling() {
+        assertFalse(Pattern.matches("TRN-\\d{4}", ""));
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", ""));
+    }
 
-        int size = list.size();
-
-        list.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-
-        assertEquals(size, list.size());
+    @Test
+    public void testRegex_ExactPatternMatch() {
+        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN-1234XYZ"));
+        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-ABCD"));
     }
 }

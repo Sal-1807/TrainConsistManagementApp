@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 public class TrainConsistManagementApp {
@@ -38,9 +40,7 @@ public class TrainConsistManagementApp {
         bogies.sort(Comparator.comparingInt(b -> b.capacity));
 
         System.out.println("\nBogies sorted by capacity:");
-        for (Bogie b : bogies) {
-            System.out.println(b);
-        }
+        bogies.forEach(System.out::println);
 
         // ================= UC8 =================
         List<Bogie> filteredBogies = bogies.stream()
@@ -66,6 +66,25 @@ public class TrainConsistManagementApp {
                 .reduce(0, Integer::sum);
 
         System.out.println("\nTotal Seating Capacity: " + totalCapacity);
+
+        // ================= UC11 =================
+
+        String trainId = "TRN-1234";
+        String cargoCode = "PET-AB";
+
+        // Regex patterns
+        Pattern trainPattern = Pattern.compile("TRN-\\d{4}");
+        Pattern cargoPattern = Pattern.compile("PET-[A-Z]{2}");
+
+        // Matchers
+        Matcher trainMatcher = trainPattern.matcher(trainId);
+        Matcher cargoMatcher = cargoPattern.matcher(cargoCode);
+
+        boolean isTrainValid = trainMatcher.matches();
+        boolean isCargoValid = cargoMatcher.matches();
+
+        System.out.println("\nTrain ID Validation: " + (isTrainValid ? "Valid" : "Invalid"));
+        System.out.println("Cargo Code Validation: " + (isCargoValid ? "Valid" : "Invalid"));
 
         // Program continues
     }
