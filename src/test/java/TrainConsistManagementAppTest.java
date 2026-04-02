@@ -1,59 +1,83 @@
 import org.junit.jupiter.api.Test;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistManagementAppTest {
 
-    // ================= UC11 TESTS =================
+    // Helper
+    private List<TrainConsistManagementApp.GoodsBogie> getValidGoods() {
+        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+
+        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Petroleum"));
+        list.add(new TrainConsistManagementApp.GoodsBogie("Open", "Coal"));
+
+        return list;
+    }
+
+    // ================= UC12 TESTS =================
 
     @Test
-    public void testRegex_ValidTrainID() {
-        String input = "TRN-1234";
-        assertTrue(Pattern.matches("TRN-\\d{4}", input));
+    public void testSafety_AllBogiesValid() {
+        List<TrainConsistManagementApp.GoodsBogie> list = getValidGoods();
+
+        boolean result = list.stream()
+                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
+                        g.cargo.equalsIgnoreCase("Petroleum"));
+
+        assertTrue(result);
     }
 
     @Test
-    public void testRegex_InvalidTrainIDFormat() {
-        assertFalse(Pattern.matches("TRN-\\d{4}", "TRAIN12"));
-        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN12A"));
-        assertFalse(Pattern.matches("TRN-\\d{4}", "1234-TRN"));
+    public void testSafety_CylindricalWithInvalidCargo() {
+        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+
+        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Coal"));
+
+        boolean result = list.stream()
+                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
+                        g.cargo.equalsIgnoreCase("Petroleum"));
+
+        assertFalse(result);
     }
 
     @Test
-    public void testRegex_ValidCargoCode() {
-        String input = "PET-AB";
-        assertTrue(Pattern.matches("PET-[A-Z]{2}", input));
+    public void testSafety_NonCylindricalBogiesAllowed() {
+        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+
+        list.add(new TrainConsistManagementApp.GoodsBogie("Open", "Coal"));
+        list.add(new TrainConsistManagementApp.GoodsBogie("Box", "Grain"));
+
+        boolean result = list.stream()
+                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
+                        g.cargo.equalsIgnoreCase("Petroleum"));
+
+        assertTrue(result);
     }
 
     @Test
-    public void testRegex_InvalidCargoCodeFormat() {
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-ab"));
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET123"));
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", "AB-PET"));
+    public void testSafety_MixedBogiesWithViolation() {
+        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
+
+        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Petroleum"));
+        list.add(new TrainConsistManagementApp.GoodsBogie("Cylindrical", "Coal"));
+
+        boolean result = list.stream()
+                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
+                        g.cargo.equalsIgnoreCase("Petroleum"));
+
+        assertFalse(result);
     }
 
     @Test
-    public void testRegex_TrainIDDigitLengthValidation() {
-        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN-123"));
-        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN-12345"));
-    }
+    public void testSafety_EmptyBogieList() {
+        List<TrainConsistManagementApp.GoodsBogie> list = new ArrayList<>();
 
-    @Test
-    public void testRegex_CargoCodeUppercaseValidation() {
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-Ab"));
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-aB"));
-    }
+        boolean result = list.stream()
+                .allMatch(g -> !g.type.equalsIgnoreCase("Cylindrical") ||
+                        g.cargo.equalsIgnoreCase("Petroleum"));
 
-    @Test
-    public void testRegex_EmptyInputHandling() {
-        assertFalse(Pattern.matches("TRN-\\d{4}", ""));
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", ""));
-    }
-
-    @Test
-    public void testRegex_ExactPatternMatch() {
-        assertFalse(Pattern.matches("TRN-\\d{4}", "TRN-1234XYZ"));
-        assertFalse(Pattern.matches("PET-[A-Z]{2}", "PET-ABCD"));
+        assertTrue(result);
     }
 }
